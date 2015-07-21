@@ -1,8 +1,6 @@
 extern crate libc;
 extern crate energymon_sys;
 
-pub mod singleton;
-
 use libc::{c_char};
 use std::mem;
 use energymon_sys::*;
