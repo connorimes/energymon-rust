@@ -1,0 +1,16 @@
+[package]
+name = "energymon"
+version = "0.1.0"
+authors = ["Connor Imes <connor.k.imes@gmail.com>"]
+description = "Rust wrappers for energymon-sys"
+license = "MIT"
+homepage = "https://github.com/connorimes/energymon-rust"
+repository = "https://github.com/connorimes/energymon-rust"
+keywords = ["energymon", "energy", "monitoring"]
+
+[dependencies]
+libc = "0.1"
+
+[dependencies.energymon-sys]
+#git = "https://github.com/connorimes/energymon-sys.git"
+path = "/local/energymon-sys"
