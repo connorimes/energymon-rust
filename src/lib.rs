@@ -1,8 +1,9 @@
 extern crate libc;
 extern crate energymon_sys;
 
-use libc::{c_char};
+use libc::{c_int, c_ulonglong, c_char};
 use std::mem;
+use std::ptr;
 use energymon_sys::*;
 
 /// A basic energy monitor.
@@ -63,6 +64,42 @@ impl Drop for EnergyMon {
     }
 }
 
+impl Default for EnergyMon {
+    /// Returns a dummy `EnergyMon`.
+    fn default() -> EnergyMon {
+        EnergyMon {
+            em: em_impl {
+                finit: default_init,
+                fread: default_read_total,
+                ffinish: default_finish,
+                fsource: default_get_source,
+                finterval:default_get_interval,
+                state: ptr::null_mut(),
+            }
+        }
+    }
+}
+
+extern fn default_init(_impl: *mut em_impl) -> c_int {
+    0
+}
+
+extern fn default_read_total(_impl: *const em_impl) -> c_ulonglong {
+    0
+}
+
+extern fn default_finish(_impl: *mut em_impl) -> c_int {
+    0
+}
+
+extern fn default_get_source(_impl: *mut c_char) -> *mut c_char {
+    ptr::null_mut()
+}
+
+extern fn default_get_interval(_impl: *const em_impl) -> c_ulonglong {
+    1
+}
+
 #[cfg(test)]
 mod test {
     use super::EnergyMon;
@@ -72,6 +109,15 @@ mod test {
         let mut em: EnergyMon = EnergyMon::new().unwrap();
         let val = em.read();
         println!("Read {} from {} with refresh interval {}", val, em.source(), em.interval());
+    }
+
+    #[test]
+    fn test_default() {
+        let mut em: EnergyMon = Default::default();
+        assert!(em.read() == 0);
+        assert!(em.interval() == 1);
+        assert!(em.finish() == 0);
+        assert!(em.em.state.is_null())
     }
 
 }
