@@ -67,6 +67,11 @@ impl Drop for EnergyMon {
 impl Default for EnergyMon {
     /// Returns a dummy `EnergyMon`.
     fn default() -> EnergyMon {
+        extern fn default_init(_impl: *mut em_impl) -> c_int { 0 };
+        extern fn default_read_total(_impl: *const em_impl) -> c_ulonglong { 0 };
+        extern fn default_finish(_impl: *mut em_impl) -> c_int { 0 };
+        extern fn default_get_source(_impl: *mut c_char) -> *mut c_char { ptr::null_mut() };
+        extern fn default_get_interval(_impl: *const em_impl) -> c_ulonglong { 1 };
         EnergyMon {
             em: em_impl {
                 finit: default_init,
@@ -78,26 +83,6 @@ impl Default for EnergyMon {
             }
         }
     }
-}
-
-extern fn default_init(_impl: *mut em_impl) -> c_int {
-    0
-}
-
-extern fn default_read_total(_impl: *const em_impl) -> c_ulonglong {
-    0
-}
-
-extern fn default_finish(_impl: *mut em_impl) -> c_int {
-    0
-}
-
-extern fn default_get_source(_impl: *mut c_char) -> *mut c_char {
-    ptr::null_mut()
-}
-
-extern fn default_get_interval(_impl: *const em_impl) -> c_ulonglong {
-    1
 }
 
 #[cfg(test)]
