@@ -102,6 +102,7 @@ mod test {
         assert!(em.read() == 0);
         assert!(em.interval() == 1);
         assert!(em.finish() == 0);
+        assert!(em.source().eq("UNKNOWN"));
         assert!(em.em.state.is_null())
     }
 
