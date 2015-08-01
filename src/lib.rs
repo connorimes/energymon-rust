@@ -1,10 +1,12 @@
 extern crate libc;
 extern crate energymon_sys;
+extern crate energymon_default_sys;
 
 use libc::{c_int, c_ulonglong, c_char};
 use std::mem;
 use std::ptr;
 use energymon_sys::*;
+use energymon_default_sys::em_impl_get;
 
 /// A basic energy monitor.
 pub struct EnergyMon {

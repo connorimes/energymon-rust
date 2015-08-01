@@ -11,5 +11,8 @@ keywords = ["energymon", "energy", "monitoring"]
 [dependencies]
 libc = "0.1"
 
+[dependencies.energymon-default-sys]
+git = "https://github.com/connorimes/energymon-default-sys.git"
+
 [dependencies.energymon-sys]
 git = "https://github.com/connorimes/energymon-sys.git"
