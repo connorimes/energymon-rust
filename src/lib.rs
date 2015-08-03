@@ -6,26 +6,26 @@ use libc::{c_int, c_ulonglong, c_char};
 use std::mem;
 use std::ptr;
 use energymon_sys::*;
-use energymon_default_sys::em_impl_get;
+use energymon_default_sys::energymon_get_default;
 
 /// A basic energy monitor.
 pub struct EnergyMon {
     /// The native C struct.
-    em: em_impl,
+    em: energymon,
 }
 
 impl EnergyMon {
     /// Create and initialize an `EnergyMon`.
     pub fn new() -> Result<EnergyMon, &'static str> {
     	unsafe {
-            let mut em: em_impl = mem::uninitialized();
-            match em_impl_get(&mut em) {
+            let mut em: energymon = mem::uninitialized();
+            match energymon_get_default(&mut em) {
                 0 => (),
-                _ => return Err("Failed to create em_impl"),
+                _ => return Err("Failed to create energymon"),
             }
             match (em.finit)(&mut em) {
             	0 => Ok(EnergyMon{ em: em }),
-            	_ => Err("Failed to initialize em_impl"),
+            	_ => Err("Failed to initialize energymon"),
         	}
         }
     }
@@ -69,13 +69,13 @@ impl Drop for EnergyMon {
 impl Default for EnergyMon {
     /// Returns a dummy `EnergyMon`.
     fn default() -> EnergyMon {
-        extern fn default_init(_impl: *mut em_impl) -> c_int { 0 };
-        extern fn default_read_total(_impl: *const em_impl) -> c_ulonglong { 0 };
-        extern fn default_finish(_impl: *mut em_impl) -> c_int { 0 };
+        extern fn default_init(_impl: *mut energymon) -> c_int { 0 };
+        extern fn default_read_total(_impl: *const energymon) -> c_ulonglong { 0 };
+        extern fn default_finish(_impl: *mut energymon) -> c_int { 0 };
         extern fn default_get_source(_impl: *mut c_char) -> *mut c_char { ptr::null_mut() };
-        extern fn default_get_interval(_impl: *const em_impl) -> c_ulonglong { 1 };
+        extern fn default_get_interval(_impl: *const energymon) -> c_ulonglong { 1 };
         EnergyMon {
-            em: em_impl {
+            em: energymon {
                 finit: default_init,
                 fread: default_read_total,
                 ffinish: default_finish,
