@@ -17,16 +17,16 @@ pub struct EnergyMon {
 impl EnergyMon {
     /// Create and initialize an `EnergyMon`.
     pub fn new() -> Result<EnergyMon, &'static str> {
-    	unsafe {
+        unsafe {
             let mut em: energymon = mem::uninitialized();
             match energymon_get_default(&mut em) {
                 0 => (),
                 _ => return Err("Failed to create energymon"),
             }
             match (em.finit)(&mut em) {
-            	0 => Ok(EnergyMon{ em: em }),
-            	_ => Err("Failed to initialize energymon"),
-        	}
+                0 => Ok(EnergyMon{ em: em }),
+                _ => Err("Failed to initialize energymon"),
+            }
         }
     }
 
@@ -56,7 +56,7 @@ impl EnergyMon {
 
     /// Cleanup the `EnergyMon`.
     fn finish(&mut self) -> i32 {
-    	(self.em.ffinish)(&mut self.em)
+        (self.em.ffinish)(&mut self.em)
     }
 }
 
