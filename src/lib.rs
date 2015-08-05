@@ -36,7 +36,7 @@ impl EnergyMon {
     }
 
     /// Get a human-readable name of the `EnergyMon`'s source.
-    pub fn source(&mut self) -> String {
+    pub fn source(&self) -> String {
         const BUFSIZE: usize = 100;
         let mut buf: [c_char; BUFSIZE] = [0; BUFSIZE];
         let ret: *mut c_char = (self.em.fsource)(buf.as_mut_ptr(),
@@ -94,7 +94,7 @@ mod test {
 
     #[test]
     fn test_interface() {
-        let mut em: EnergyMon = EnergyMon::new().unwrap();
+        let em: EnergyMon = EnergyMon::new().unwrap();
         let val = em.read();
         println!("Read {} from {} with refresh interval {}", val, em.source(), em.interval());
     }
