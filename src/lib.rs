@@ -2,7 +2,7 @@ extern crate libc;
 extern crate energymon_sys;
 extern crate energymon_default_sys;
 
-use libc::{c_int, c_ulonglong, c_char};
+use libc::{c_int, c_ulonglong, c_char, size_t};
 use std::mem;
 use std::ptr;
 use energymon_sys::*;
@@ -39,7 +39,8 @@ impl EnergyMon {
     pub fn source(&mut self) -> String {
         const BUFSIZE: usize = 100;
         let mut buf: [c_char; BUFSIZE] = [0; BUFSIZE];
-        let ret: *mut c_char = (self.em.fsource)(buf.as_mut_ptr());
+        let ret: *mut c_char = (self.em.fsource)(buf.as_mut_ptr(),
+                                                 mem::size_of_val(&buf) as size_t);
         if ret.is_null() {
             return "UNKNOWN".to_owned();
         }
@@ -72,7 +73,7 @@ impl Default for EnergyMon {
         extern fn default_init(_impl: *mut energymon) -> c_int { 0 };
         extern fn default_read_total(_impl: *const energymon) -> c_ulonglong { 0 };
         extern fn default_finish(_impl: *mut energymon) -> c_int { 0 };
-        extern fn default_get_source(_impl: *mut c_char) -> *mut c_char { ptr::null_mut() };
+        extern fn default_get_source(_impl: *mut c_char, _n: size_t) -> *mut c_char { ptr::null_mut() };
         extern fn default_get_interval(_impl: *const energymon) -> c_ulonglong { 1 };
         EnergyMon {
             em: energymon {
