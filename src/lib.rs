@@ -1,10 +1,12 @@
 extern crate libc;
+extern crate energy_monitor;
 extern crate energymon_sys;
 extern crate energymon_default_sys;
 
 use libc::{c_int, c_ulonglong, c_char, size_t};
 use std::mem;
 use std::ptr;
+use energy_monitor::EnergyMonitor;
 use energymon_sys::*;
 use energymon_default_sys::energymon_get_default;
 
@@ -30,13 +32,24 @@ impl EnergyMon {
         }
     }
 
-    /// Read the total energy from the `EnergyMon`.
-    pub fn read(&self) -> u64 {
-        (self.em.fread)(&self.em)
+    /// Cleanup the `EnergyMon`.
+    fn finish(&mut self) -> i32 {
+        (self.em.ffinish)(&mut self.em)
+    }
+}
+
+impl Drop for EnergyMon {
+    fn drop(&mut self) {
+        self.finish();
+    }
+}
+
+impl EnergyMonitor for EnergyMon {
+    fn read_uj(&self) -> Result<u64, &'static str> {
+        Ok((self.em.fread)(&self.em))
     }
 
-    /// Get a human-readable name of the `EnergyMon`'s source.
-    pub fn source(&self) -> String {
+    fn source(&self) -> String {
         const BUFSIZE: usize = 100;
         let mut buf: [c_char; BUFSIZE] = [0; BUFSIZE];
         let ret: *mut c_char = (self.em.fsource)(buf.as_mut_ptr(),
@@ -50,20 +63,8 @@ impl EnergyMon {
         String::from_utf8_lossy(buf).into_owned()
     }
 
-    /// Get the refresh interval for the `EnergyMon`.
-    pub fn interval(&self) -> u64 {
+    fn interval_us(&self) -> u64 {
         (self.em.finterval)(&self.em)
-    }
-
-    /// Cleanup the `EnergyMon`.
-    fn finish(&mut self) -> i32 {
-        (self.em.ffinish)(&mut self.em)
-    }
-}
-
-impl Drop for EnergyMon {
-    fn drop(&mut self) {
-        self.finish();
     }
 }
 
@@ -91,19 +92,20 @@ impl Default for EnergyMon {
 #[cfg(test)]
 mod test {
     use super::EnergyMon;
+    use energy_monitor::EnergyMonitor;
 
     #[test]
     fn test_interface() {
         let em: EnergyMon = EnergyMon::new().unwrap();
-        let val = em.read();
-        println!("Read {} from {} with refresh interval {}", val, em.source(), em.interval());
+        let val = em.read_uj().unwrap();
+        println!("Read {} from {} with refresh interval {}", val, em.source(), em.interval_us());
     }
 
     #[test]
     fn test_default() {
         let mut em: EnergyMon = Default::default();
-        assert!(em.read() == 0);
-        assert!(em.interval() == 1);
+        assert!(em.read_uj().unwrap() == 0);
+        assert!(em.interval_us() == 1);
         assert!(em.finish() == 0);
         assert!(em.source().eq("UNKNOWN"));
         assert!(em.em.state.is_null())
