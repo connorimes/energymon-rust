@@ -1,3 +1,6 @@
+//! This crate provides abstractions over the `energymon_sys` and `energymon_default_sys` crates
+//! using the EnergyMonitor trait.
+
 extern crate libc;
 extern crate energy_monitor;
 extern crate energymon_sys;
