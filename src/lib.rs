@@ -9,7 +9,7 @@ extern crate energymon_default_sys;
 use libc::{c_char, size_t};
 use std::mem;
 use energy_monitor::EnergyMonitor;
-use energymon_sys::*;
+use energymon_sys::energymon;
 use energymon_default_sys::energymon_get_default;
 
 /// A basic energy monitor.
