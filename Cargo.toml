@@ -4,18 +4,18 @@ version = "0.1.0"
 authors = ["Connor Imes <connor.k.imes@gmail.com>"]
 description = "Rust wrappers for energymon-sys"
 license = "MIT"
-homepage = "https://github.com/connorimes/energymon-rust"
-repository = "https://github.com/connorimes/energymon-rust"
+homepage = "https://github.com/energymon/energymon-rust"
+repository = "https://github.com/energymon/energymon-rust"
 keywords = ["energymon", "energy", "monitoring"]
 
 [dependencies]
 libc = "0.1"
 
 [dependencies.energy-monitor]
-git = "https://github.com/connorimes/energy-monitor-rs.git"
+git = "https://github.com/energymon/energy-monitor-rs.git"
 
 [dependencies.energymon-default-sys]
-git = "https://github.com/connorimes/energymon-default-sys.git"
+git = "https://github.com/energymon/energymon-default-sys.git"
 
 [dependencies.energymon-sys]
-git = "https://github.com/connorimes/energymon-sys.git"
+git = "https://github.com/energymon/energymon-sys.git"
