@@ -9,10 +9,8 @@ repository = "https://github.com/energymon/energymon-rust"
 keywords = ["energymon", "energy", "monitoring"]
 
 [dependencies]
+energy-monitor = "0.1.0"
 libc = "0.1"
-
-[dependencies.energy-monitor]
-git = "https://github.com/energymon/energy-monitor-rs.git"
 
 [dependencies.energymon-default-sys]
 git = "https://github.com/energymon/energymon-default-sys.git"
