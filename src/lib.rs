@@ -6,6 +6,7 @@ extern crate energy_monitor;
 extern crate energymon_default_sys;
 
 use libc::{c_char, size_t};
+use std::ffi::CStr;
 use std::mem;
 use energy_monitor::EnergyMonitor;
 use energymon_default_sys::{energymon, energymon_get_default};
@@ -54,13 +55,12 @@ impl EnergyMonitor for EnergyMon {
         let mut buf: [c_char; BUFSIZE] = [0; BUFSIZE];
         let ret: *mut c_char = (self.em.fsource)(buf.as_mut_ptr(),
                                                  mem::size_of_val(&buf) as size_t);
-        if ret.is_null() {
-            return "UNKNOWN".to_owned();
+        match ret.is_null() {
+            true => "UNKNOWN".to_owned(),
+            false => unsafe {
+                String::from_utf8_lossy(CStr::from_ptr(buf.as_mut_ptr()).to_bytes()).into_owned()
+            }
         }
-        let buf: &[u8] = unsafe {
-            mem::transmute::<&[c_char], &[u8]>(&buf)
-        };
-        String::from_utf8_lossy(buf).into_owned()
     }
 
     fn interval_us(&self) -> u64 {
