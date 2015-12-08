@@ -10,7 +10,7 @@ keywords = ["energymon", "energy", "monitoring"]
 
 [dependencies]
 energy-monitor = "0.1.0"
-libc = "0.1"
+libc = "0.2"
 
 [dependencies.energymon-default-sys]
 git = "https://github.com/energymon/energymon-sys.git"
