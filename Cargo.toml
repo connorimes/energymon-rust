@@ -9,7 +9,7 @@ repository = "https://github.com/energymon/energymon-rust"
 keywords = ["energymon", "energy", "monitoring"]
 
 [dependencies]
-energy-monitor = "0.1.0"
+energy-monitor = "0.1"
 libc = "0.2"
 
 [dependencies.energymon-default-sys]
