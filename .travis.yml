@@ -1,0 +1,22 @@
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    sources:
+      - kubuntu-backports
+    packages:
+      - cmake
+
+language: rust
+
+rust:
+  - 1.0.0
+  - stable
+  - beta
+  - nightly
+
+matrix:
+  allow_failures:
+    - rust: nightly
