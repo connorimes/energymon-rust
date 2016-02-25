@@ -66,6 +66,17 @@ impl EnergyMonitor for EnergyMon {
     fn interval_us(&self) -> u64 {
         (self.em.finterval)(&self.em)
     }
+
+    fn precision_uj(&self) -> u64 {
+        (self.em.fprecision)(&self.em)
+    }
+
+    fn is_exclusive(&self) -> bool {
+        match (self.em.fexclusive)() {
+            0 => false,
+            _ => true,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -76,8 +87,12 @@ mod test {
     #[test]
     fn test_interface() {
         let em: EnergyMon = EnergyMon::new().unwrap();
+        println!("Source: {}", em.source());
+        println!("Interval: {}", em.interval_us());
+        println!("Precision: {}", em.precision_uj());
+        println!("Exclusive: {}", em.is_exclusive());
         let val = em.read_uj().unwrap();
-        println!("Read {} from {} with refresh interval {}", val, em.source(), em.interval_us());
+        println!("Reading: {}", val);
     }
 
 }
