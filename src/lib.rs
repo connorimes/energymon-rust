@@ -21,21 +21,33 @@ impl EnergyMon {
     /// Create and initialize an `EnergyMon`.
     pub fn new() -> Result<EnergyMon, &'static str> {
         unsafe {
-            let mut em: energymon = mem::uninitialized();
+            let mut em: energymon = mem::zeroed();
             match energymon_get_default(&mut em) {
                 0 => (),
-                _ => return Err("Failed to create energymon"),
+                _ => return Err("Failed to create energymon")
             }
-            match (em.finit)(&mut em) {
-                0 => Ok(EnergyMon{ em: em }),
-                _ => Err("Failed to initialize energymon"),
+            // Function pointers should never be NULL from now on.
+            // However, if any are NULL, we'll proceed optimistically so long as it's safe
+            // (it's not our job to verify the correctness of the native implementation).
+            match em.finit {
+                Some(f) => {
+                    match f(&mut em) {
+                        0 => Ok(EnergyMon{ em: em }),
+                        _ => Err("Failed to initialize energymon")
+                    }
+                }
+                // shouldn't happen, but we'll be optimistic and hope it just doesn't need initialization...
+                None => Ok(EnergyMon{ em: em })
             }
         }
     }
 
     /// Cleanup the `EnergyMon`.
     fn finish(&mut self) -> i32 {
-        (self.em.ffinish)(&mut self.em)
+        match self.em.ffinish {
+            Some(f) => f((&mut self.em)),
+            None => 0
+        }
     }
 }
 
@@ -47,34 +59,51 @@ impl Drop for EnergyMon {
 
 impl EnergyMonitor for EnergyMon {
     fn read_uj(&self) -> Result<u64, &'static str> {
-        Ok((self.em.fread)(&self.em))
+        match self.em.fread {
+            Some(f) => Ok(f((&self.em))),
+            None => Err("No read function for energymon")
+        }
     }
 
     fn source(&self) -> String {
-        const BUFSIZE: usize = 100;
-        let mut buf: [c_char; BUFSIZE] = [0; BUFSIZE];
-        let ret: *mut c_char = (self.em.fsource)(buf.as_mut_ptr(),
-                                                 mem::size_of_val(&buf) as size_t);
-        match ret.is_null() {
-            true => "UNKNOWN".to_owned(),
-            false => unsafe {
-                String::from_utf8_lossy(CStr::from_ptr(buf.as_mut_ptr()).to_bytes()).into_owned()
-            }
+        match self.em.fsource {
+            Some(f) => {
+                const BUFSIZE: usize = 100;
+                let mut buf: [c_char; BUFSIZE] = [0; BUFSIZE];
+                let ret: *mut c_char = f(buf.as_mut_ptr(), mem::size_of_val(&buf) as size_t);
+                match ret.is_null() {
+                    true => "UNKNOWN".to_owned(),
+                    false => unsafe {
+                        String::from_utf8_lossy(CStr::from_ptr(buf.as_mut_ptr()).to_bytes()).into_owned()
+                    }
+                }
+            },
+            None => "UNKNOWN".to_owned()
         }
     }
 
     fn interval_us(&self) -> u64 {
-        (self.em.finterval)(&self.em)
+        match self.em.finterval {
+            Some(f) => f(&self.em),
+            None => 0u64
+        }
     }
 
     fn precision_uj(&self) -> u64 {
-        (self.em.fprecision)(&self.em)
+        match self.em.fprecision {
+            Some(f) => f(&self.em),
+            None => 0u64
+        }
     }
 
     fn is_exclusive(&self) -> bool {
-        match (self.em.fexclusive)() {
-            0 => false,
-            _ => true,
+        match self.em.fexclusive {
+            Some(f) => match f() {
+                0 => false,
+                _ => true
+            },
+            // optimistically assume that exclusive access isn't required since the native impl didn't specify
+            None => false
         }
     }
 }
