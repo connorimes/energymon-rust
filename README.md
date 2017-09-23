@@ -22,6 +22,13 @@ Add `energymon` as a dependency in `Cargo.toml`:
 git = "https://github.com/energymon/energymon-rust.git"
 ```
 
+## Project Source
+
+Find this and related project sources at the [energymon organization on GitHub](https://github.com/energymon).  
+This project originates at: https://github.com/energymon/energymon-rust
+
+Bug reports and pull requests for new implementations, bug fixes, and enhancements are welcome.
+
 ## License
 
 Licensed under either of
